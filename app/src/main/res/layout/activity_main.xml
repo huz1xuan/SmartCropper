@@ -54,24 +54,4 @@
 
     </LinearLayout>
 
-    <!-- 预览区域 -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="裁剪结果预览"
-        android:textSize="16sp"
-        android:textColor="#666666"
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="10dp" />
-
-    <ImageView
-        android:id="@+id/iv_show"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/preview_border"
-        android:scaleType="centerInside"
-        android:src="@drawable/ic_placeholder" />
-
 </LinearLayout>

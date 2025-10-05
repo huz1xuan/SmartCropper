@@ -1,0 +1,62 @@
+plugins {
+    id 'com.android.library'
+    //id 'maven-publish'
+}
+
+android {
+    namespace="me.pqpo.smartcropperlib"
+    ndkVersion '25.1.8937393'
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 10
+        versionName "2.1.4"
+
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11 -frtti -fexceptions"
+                abiFilters 'armeabi-v7a', "arm64-v8a", 'x86', 'x86_64'
+                arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"
+            }
+        }
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path "CMakeLists.txt"
+        }
+    }
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api 'org.tensorflow:tensorflow-lite:1.13.1'
+}
+
+/*
+publishing {
+    publications {
+        release(MavenPublication) {
+            //from components.release
+            groupId = 'com.github.pqpo'
+            artifactId = 'smartcropperlib'
+            version = '2.1.4'
+        }
+    }
+    repositories {
+        maven {
+            url "file://${buildDir}/repo"
+        }
+    }
+}*/

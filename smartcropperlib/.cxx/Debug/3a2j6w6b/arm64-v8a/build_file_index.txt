@@ -1,1 +1,1 @@
-/Users/mac/SmartCropper/smartcropperlib/CMakeLists.txt
+/Users/mac/KMP/Camera-KMP/SmartCropper/smartcropperlib/CMakeLists.txt

@@ -261,7 +261,7 @@ smart_cropper_BINARY_DIR:STATIC=/Users/mac/SmartCropper/smartcropperlib/.cxx/Deb
 smart_cropper_IS_TOP_LEVEL:STATIC=ON
 
 //Dependencies for the target
-smart_cropper_LIB_DEPENDS:STATIC=general;log;general;jnigraphics;general;z;general;opencv_imgproc;general;opencv_core;general;ippiw;general;ippicv;general;ittnotify;general;tbb;general;cpufeatures;
+smart_cropper_LIB_DEPENDS:STATIC=general;log;general;jnigraphics;general;z;general;opencv_imgproc;general;opencv_core;general;opencv_photo;general;ippiw;general;ippicv;general;ittnotify;general;tbb;general;cpufeatures;
 
 //Value Computed by CMake
 smart_cropper_SOURCE_DIR:STATIC=/Users/mac/SmartCropper/smartcropperlib

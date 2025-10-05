@@ -1,19 +1,19 @@
 {
   "buildFiles": [
-    "/Users/mac/SmartCropper/smartcropperlib/CMakeLists.txt"
+    "/Users/mac/KMP/Camera-KMP/SmartCropper/smartcropperlib/CMakeLists.txt"
   ],
   "cleanCommandsComponents": [
     [
       "/Users/mac/Library/Android/sdk/cmake/3.22.1/bin/ninja",
       "-C",
-      "/Users/mac/SmartCropper/smartcropperlib/.cxx/Debug/3a2j6w6b/x86",
+      "/Users/mac/KMP/Camera-KMP/SmartCropper/smartcropperlib/.cxx/Debug/3a2j6w6b/x86",
       "clean"
     ]
   ],
   "buildTargetsCommandComponents": [
     "/Users/mac/Library/Android/sdk/cmake/3.22.1/bin/ninja",
     "-C",
-    "/Users/mac/SmartCropper/smartcropperlib/.cxx/Debug/3a2j6w6b/x86",
+    "/Users/mac/KMP/Camera-KMP/SmartCropper/smartcropperlib/.cxx/Debug/3a2j6w6b/x86",
     "{LIST_OF_TARGETS_TO_BUILD}"
   ],
   "libraries": {
@@ -21,7 +21,7 @@
       "toolchain": "toolchain",
       "abi": "x86",
       "artifactName": "smart_cropper",
-      "output": "/Users/mac/SmartCropper/smartcropperlib/build/intermediates/cxx/Debug/3a2j6w6b/obj/x86/libsmart_cropper.so",
+      "output": "/Users/mac/KMP/Camera-KMP/SmartCropper/smartcropperlib/build/intermediates/cxx/Debug/3a2j6w6b/obj/x86/libsmart_cropper.so",
       "runtimeFiles": []
     }
   },

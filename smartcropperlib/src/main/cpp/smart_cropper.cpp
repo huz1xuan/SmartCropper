@@ -6,8 +6,10 @@
 #include <android_utils.h>
 #include <Scanner.h>
 #include <SSIMCalculator.h>
+#include "opencv2/photo.hpp"
 
 using namespace std;
+using namespace cv;
 
 static const char* const kClassDocScanner = "me/pqpo/smartcropperlib/SmartCropper";
 
@@ -212,6 +214,117 @@ static jobject native_binarizeImage(JNIEnv *env, jclass type, jobject srcBitmap)
     return createBitmapFromMat(env, rgbaMat);
 }
 
+// 高级文档处理：包含形态学操作和背景分离
+static jobject native_advancedDocumentProcess(JNIEnv *env, jclass type, jobject srcBitmap) {
+    Mat srcMat;
+    bitmap_to_mat(env, srcBitmap, srcMat);
+    
+    // 转换为BGR格式进行处理
+    Mat bgrMat;
+    if (srcMat.channels() == 4) {
+        cvtColor(srcMat, bgrMat, COLOR_RGBA2BGR);
+    } else {
+        bgrMat = srcMat.clone();
+    }
+    
+    // 步骤1：形态学操作去除文本内容
+    Mat morphMat;
+    Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
+    morphologyEx(bgrMat, morphMat, MORPH_CLOSE, kernel, Point(-1, -1), 3);
+    
+    // 步骤2：GrabCut背景分离
+    Mat mask = Mat::zeros(morphMat.rows, morphMat.cols, CV_8UC1);
+    Mat bgdModel, fgdModel;
+    
+    // 定义前景区域（留20像素边界）
+    Rect rect(20, 20, morphMat.cols - 40, morphMat.rows - 40);
+    
+    // 执行GrabCut算法
+    grabCut(morphMat, mask, rect, bgdModel, fgdModel, 5, GC_INIT_WITH_RECT);
+    
+    // 创建前景mask
+    Mat mask2;
+    compare(mask, GC_PR_FGD, mask2, CMP_EQ);
+    Mat mask3;
+    compare(mask, GC_FGD, mask3, CMP_EQ);
+    Mat finalMask = mask2 | mask3;
+    
+    // 应用mask到原图
+    Mat result;
+    morphMat.copyTo(result, finalMask);
+    
+    // 转换回RGBA格式
+    Mat rgbaMat;
+    cvtColor(result, rgbaMat, COLOR_BGR2RGBA);
+    
+    return createBitmapFromMat(env, rgbaMat);
+}
+
+// 智能二值化：多种方法结合
+static jobject native_smartBinarize(JNIEnv *env, jclass type, jobject srcBitmap, jint method) {
+    Mat srcMat;
+    bitmap_to_mat(env, srcBitmap, srcMat);
+    
+    Mat grayMat;
+    if (srcMat.channels() > 1) {
+        cvtColor(srcMat, grayMat, COLOR_RGBA2GRAY);
+    } else {
+        grayMat = srcMat.clone();
+    }
+    
+    Mat binaryMat;
+    
+    switch (method) {
+        case 0: // 自适应高斯阈值
+            adaptiveThreshold(grayMat, binaryMat, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 2);
+            break;
+        case 1: // 自适应均值阈值
+            adaptiveThreshold(grayMat, binaryMat, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 15, 7);
+            break;
+        case 2: // Otsu自动阈值
+            threshold(grayMat, binaryMat, 0, 255, THRESH_BINARY + THRESH_OTSU);
+            break;
+        case 3: // 组合方法：先CLAHE再自适应阈值
+            {
+                Mat enhancedMat;
+                Ptr<CLAHE> clahe = createCLAHE(3.0, Size(8, 8));
+                clahe->apply(grayMat, enhancedMat);
+                adaptiveThreshold(enhancedMat, binaryMat, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 2);
+            }
+            break;
+        default:
+            adaptiveThreshold(grayMat, binaryMat, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 2);
+            break;
+    }
+    
+    // 转换回RGBA格式
+    Mat rgbaMat;
+    cvtColor(binaryMat, rgbaMat, COLOR_GRAY2RGBA);
+    
+    return createBitmapFromMat(env, rgbaMat);
+}
+
+// 高级降噪：Non-local Means Denoising
+static jobject native_advancedDenoise(JNIEnv *env, jclass type, jobject srcBitmap) {
+    Mat srcMat;
+    bitmap_to_mat(env, srcBitmap, srcMat);
+    
+    Mat denoisedMat;
+    
+    if (srcMat.channels() == 1) {
+        // 灰度图像降噪
+        fastNlMeansDenoising(srcMat, denoisedMat, 3, 7, 21);
+    } else {
+        // 彩色图像降噪
+        Mat bgrMat;
+        cvtColor(srcMat, bgrMat, COLOR_RGBA2BGR);
+        fastNlMeansDenoisingColored(bgrMat, denoisedMat, 3, 3, 7, 21);
+        cvtColor(denoisedMat, denoisedMat, COLOR_BGR2RGBA);
+    }
+    
+    return createBitmapFromMat(env, denoisedMat);
+}
+
 static JNINativeMethod gMethods[] = {
 
         {
@@ -254,6 +367,24 @@ static JNINativeMethod gMethods[] = {
                 "nativeBinarizeImage",
                 "(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;",
                 (void*)native_binarizeImage
+        },
+
+        {
+                "nativeAdvancedDocumentProcess",
+                "(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;",
+                (void*)native_advancedDocumentProcess
+        },
+
+        {
+                "nativeSmartBinarize",
+                "(Landroid/graphics/Bitmap;I)Landroid/graphics/Bitmap;",
+                (void*)native_smartBinarize
+        },
+
+        {
+                "nativeAdvancedDenoise",
+                "(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;",
+                (void*)native_advancedDenoise
         }
 
 };

@@ -1,1 +1,1 @@
-/Users/mac/SmartCropper/smartcropperlib/build/intermediates/cxx/Debug/3a2j6w6b/obj/x86
+/Users/mac/KMP/Camera-KMP/SmartCropper/smartcropperlib/build/intermediates/cxx/Debug/3a2j6w6b/obj/x86

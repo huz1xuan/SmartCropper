@@ -1,19 +1,10 @@
 # ninja log v5
-1	42	1759638339092260969	build.ninja	b85b3b1451fa54c7
-4	3945	1759638297425143902	CMakeFiles/smart_cropper.dir/src/main/cpp/android_utils.cpp.o	681e339da41b4684
-4541	4734	1759638298135300644	../../../../build/intermediates/cxx/RelWithDebInfo/1s667020/obj/arm64-v8a/libsmart_cropper.so	51bdb9d43033b0a2
-6	4237	1759638297715177040	CMakeFiles/smart_cropper.dir/src/main/cpp/smart_cropper.cpp.o	e5febc99c7b4ff23
-1	3911	1759638297391506410	CMakeFiles/smart_cropper.dir/src/main/cpp/SSIMCalculator.cpp.o	15dff9019fe152ac
-0	6	0	clean	236afe6167867679
-3	4541	1759638298021158665	CMakeFiles/smart_cropper.dir/src/main/cpp/Scanner.cpp.o	8efdc6afa6252d20
-5	4630	1759638343742214015	CMakeFiles/smart_cropper.dir/src/main/cpp/android_utils.cpp.o	681e339da41b4684
-4	5179	1759638344297004588	CMakeFiles/smart_cropper.dir/src/main/cpp/SSIMCalculator.cpp.o	15dff9019fe152ac
-1	5326	1759638344415238189	CMakeFiles/smart_cropper.dir/src/main/cpp/smart_cropper.cpp.o	e5febc99c7b4ff23
-2	5924	1759638345036710198	CMakeFiles/smart_cropper.dir/src/main/cpp/Scanner.cpp.o	8efdc6afa6252d20
-5924	6072	1759638345138025345	../../../../build/intermediates/cxx/RelWithDebInfo/1s667020/obj/arm64-v8a/libsmart_cropper.so	279327aa768ac067
+1	6671	1759638478908421462	CMakeFiles/smart_cropper.dir/src/main/cpp/Scanner.cpp.o	8efdc6afa6252d20
+1	5895	1759638478136637583	CMakeFiles/smart_cropper.dir/src/main/cpp/smart_cropper.cpp.o	e5febc99c7b4ff23
+6671	6914	1759638479087476111	../../../../build/intermediates/cxx/RelWithDebInfo/1s667020/obj/arm64-v8a/libsmart_cropper.so	279327aa768ac067
+3	5443	1759638477676732220	CMakeFiles/smart_cropper.dir/src/main/cpp/android_utils.cpp.o	681e339da41b4684
 0	24	0	clean	236afe6167867679
 2	5268	1759638477509802772	CMakeFiles/smart_cropper.dir/src/main/cpp/SSIMCalculator.cpp.o	15dff9019fe152ac
-3	5443	1759638477676732220	CMakeFiles/smart_cropper.dir/src/main/cpp/android_utils.cpp.o	681e339da41b4684
-1	5895	1759638478136637583	CMakeFiles/smart_cropper.dir/src/main/cpp/smart_cropper.cpp.o	e5febc99c7b4ff23
-1	6671	1759638478908421462	CMakeFiles/smart_cropper.dir/src/main/cpp/Scanner.cpp.o	8efdc6afa6252d20
-6671	6914	1759638479087476111	../../../../build/intermediates/cxx/RelWithDebInfo/1s667020/obj/arm64-v8a/libsmart_cropper.so	279327aa768ac067
+1	42	1759650768284034027	build.ninja	b85b3b1451fa54c7
+0	32	1759650768284034027	build.ninja	b85b3b1451fa54c7
+0	8	0	clean	236afe6167867679
