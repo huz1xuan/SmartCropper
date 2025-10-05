@@ -96,11 +96,24 @@ public class SmartCropper {
         return cropBitmap;
     }
 
-
+    /**
+     * 计算两个图片的SSIM相似度
+     * @param bitmap1 第一张图片
+     * @param bitmap2 第二张图片
+     * @return SSIM值，范围0-1，值越大越相似
+     */
+    public static double calculateSSIM(Bitmap bitmap1, Bitmap bitmap2) {
+        if (bitmap1 == null || bitmap2 == null) {
+            return 0.0;
+        }
+        return nativeCalculateSSIM(bitmap1, bitmap2);
+    }
 
     private static native void nativeScan(Bitmap srcBitmap, Point[] outPoints, boolean canny);
 
     private static native void nativeCrop(Bitmap srcBitmap, Point[] points, Bitmap outBitmap);
+
+    private static native double nativeCalculateSSIM(Bitmap bitmap1, Bitmap bitmap2);
 
     static {
         System.loadLibrary("smart_cropper");

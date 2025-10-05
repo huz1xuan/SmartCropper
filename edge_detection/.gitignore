@@ -1,5 +1,0 @@
-test_image/
-checkpoint/
-make_test/
-*.tflite
-*.pyc

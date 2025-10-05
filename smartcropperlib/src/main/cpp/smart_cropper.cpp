@@ -5,6 +5,7 @@
 #include <string>
 #include <android_utils.h>
 #include <Scanner.h>
+#include <SSIMCalculator.h>
 
 using namespace std;
 
@@ -96,6 +97,15 @@ static void native_crop(JNIEnv *env, jclass type, jobject srcBitmap, jobjectArra
     mat_to_bitmap(env, dstBitmapMat, outBitmap);
 }
 
+static jdouble native_calculateSSIM(JNIEnv *env, jclass type, jobject bitmap1, jobject bitmap2) {
+    Mat mat1, mat2;
+    bitmap_to_mat(env, bitmap1, mat1);
+    bitmap_to_mat(env, bitmap2, mat2);
+    
+    double ssimValue = ssim::SSIMCalculator::calculateSSIM(mat1, mat2);
+    return static_cast<jdouble>(ssimValue);
+}
+
 static JNINativeMethod gMethods[] = {
 
         {
@@ -108,6 +118,12 @@ static JNINativeMethod gMethods[] = {
                 "nativeCrop",
                 "(Landroid/graphics/Bitmap;[Landroid/graphics/Point;Landroid/graphics/Bitmap;)V",
                 (void*)native_crop
+        },
+
+        {
+                "nativeCalculateSSIM",
+                "(Landroid/graphics/Bitmap;Landroid/graphics/Bitmap;)D",
+                (void*)native_calculateSSIM
         }
 
 };

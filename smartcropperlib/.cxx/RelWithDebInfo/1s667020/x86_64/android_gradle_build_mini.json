@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "/Users/mac/SmartCropper/smartcropperlib/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/mac/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/mac/SmartCropper/smartcropperlib/.cxx/RelWithDebInfo/1s667020/x86_64",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/mac/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/mac/SmartCropper/smartcropperlib/.cxx/RelWithDebInfo/1s667020/x86_64",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "smart_cropper::@6890427a1f51a3e7e1df": {
+      "artifactName": "smart_cropper",
+      "abi": "x86_64",
+      "output": "/Users/mac/SmartCropper/smartcropperlib/build/intermediates/cxx/RelWithDebInfo/1s667020/obj/x86_64/libsmart_cropper.so",
+      "runtimeFiles": []
+    }
+  }
+}

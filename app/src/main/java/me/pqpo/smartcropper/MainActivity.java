@@ -33,14 +33,16 @@ public class MainActivity extends AppCompatActivity {
         btnTake.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(CropActivity.getJumpIntent(MainActivity.this, false, photoFile), 100);
+                Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                intent.putExtra("output_file", photoFile);
+                startActivityForResult(intent, 100);
             }
         });
 
         btnSelect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(CropActivity.getJumpIntent(MainActivity.this, true, photoFile), 100);
+                startActivityForResult(CropActivity.getJumpIntent(MainActivity.this, true, photoFile), 200);
             }
         });
     }
@@ -52,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if (requestCode == 100 && photoFile.exists()) {
+            Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getPath());
+            ivShow.setImageBitmap(bitmap);
+        } else if (requestCode == 200 && photoFile.exists()) {
             Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getPath());
             ivShow.setImageBitmap(bitmap);
         }

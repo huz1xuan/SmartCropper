@@ -5,6 +5,8 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+project(smart_cropper)
+
 set(TARGET smart_cropper)
 set(SRC_DIR src/main/cpp/)
 set(OPENCV_LIB_DIR opencv/lib/${ANDROID_ABI}/)
@@ -21,9 +23,19 @@ link_directories(${OPENCV_LIB_DIR}
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+# Debug: Print source files found
 aux_source_directory(${SRC_DIR} DIR_LIB_SOURCE)
+message(STATUS "Found source files: ${DIR_LIB_SOURCE}")
 
-add_library(${TARGET} SHARED ${DIR_LIB_SOURCE})
+# Explicitly list all source files to ensure SSIMCalculator.cpp is included
+set(SOURCE_FILES
+    ${SRC_DIR}smart_cropper.cpp
+    ${SRC_DIR}Scanner.cpp
+    ${SRC_DIR}SSIMCalculator.cpp
+    ${SRC_DIR}android_utils.cpp
+)
+
+add_library(${TARGET} SHARED ${SOURCE_FILES})
 
 # Forces ELF segment alignment to 16KB for compatibility with Android 15+
 # This is required by Google Play when compiling with NDK r26 or earlier
