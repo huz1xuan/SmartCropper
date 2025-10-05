@@ -109,11 +109,97 @@ public class SmartCropper {
         return nativeCalculateSSIM(bitmap1, bitmap2);
     }
 
+    /**
+     * 完整的文档处理流程：灰度图 -> 降噪 -> 加强对比度 -> 二值化
+     * @param srcBmp 原始图片
+     * @return 处理后的文档图片
+     */
+    public static Bitmap processDocument(Bitmap srcBmp) {
+        if (srcBmp == null) {
+            throw new IllegalArgumentException("srcBmp cannot be null");
+        }
+
+        // 步骤1：转换为灰度图
+        Bitmap grayBitmap = convertToGrayscale(srcBmp);
+        
+        // 步骤2：降噪处理
+        Bitmap denoisedBitmap = denoiseImage(grayBitmap);
+        
+        // 步骤3：加强对比度
+        Bitmap contrastBitmap = enhanceContrast(denoisedBitmap);
+        
+        // 步骤4：二值化处理
+        Bitmap binaryBitmap = binarizeImage(contrastBitmap);
+        
+        // 清理中间结果
+        if (grayBitmap != denoisedBitmap) grayBitmap.recycle();
+        if (denoisedBitmap != contrastBitmap) denoisedBitmap.recycle();
+        if (contrastBitmap != binaryBitmap) contrastBitmap.recycle();
+        
+        return binaryBitmap;
+    }
+
+    /**
+     * 转换为灰度图
+     * @param srcBmp 原始图片
+     * @return 灰度图
+     */
+    public static Bitmap convertToGrayscale(Bitmap srcBmp) {
+        if (srcBmp == null) {
+            throw new IllegalArgumentException("srcBmp cannot be null");
+        }
+        return nativeConvertToGrayscale(srcBmp);
+    }
+
+    /**
+     * 图像降噪处理
+     * @param srcBmp 原始图片
+     * @return 降噪后的图片
+     */
+    public static Bitmap denoiseImage(Bitmap srcBmp) {
+        if (srcBmp == null) {
+            throw new IllegalArgumentException("srcBmp cannot be null");
+        }
+        return nativeDenoiseImage(srcBmp);
+    }
+
+    /**
+     * 增强图像对比度
+     * @param srcBmp 原始图片
+     * @return 对比度增强后的图片
+     */
+    public static Bitmap enhanceContrast(Bitmap srcBmp) {
+        if (srcBmp == null) {
+            throw new IllegalArgumentException("srcBmp cannot be null");
+        }
+        return nativeEnhanceContrast(srcBmp);
+    }
+
+    /**
+     * 图像二值化处理
+     * @param srcBmp 原始图片
+     * @return 二值化后的图片
+     */
+    public static Bitmap binarizeImage(Bitmap srcBmp) {
+        if (srcBmp == null) {
+            throw new IllegalArgumentException("srcBmp cannot be null");
+        }
+        return nativeBinarizeImage(srcBmp);
+    }
+
     private static native void nativeScan(Bitmap srcBitmap, Point[] outPoints, boolean canny);
 
     private static native void nativeCrop(Bitmap srcBitmap, Point[] points, Bitmap outBitmap);
 
     private static native double nativeCalculateSSIM(Bitmap bitmap1, Bitmap bitmap2);
+
+    private static native Bitmap nativeConvertToGrayscale(Bitmap srcBitmap);
+
+    private static native Bitmap nativeDenoiseImage(Bitmap srcBitmap);
+
+    private static native Bitmap nativeEnhanceContrast(Bitmap srcBitmap);
+
+    private static native Bitmap nativeBinarizeImage(Bitmap srcBitmap);
 
     static {
         System.loadLibrary("smart_cropper");

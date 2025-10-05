@@ -16,3 +16,5 @@
 5	4028	1759638474185329376	CMakeFiles/smart_cropper.dir/src/main/cpp/android_utils.cpp.o	cf348d40162b4703
 2	4202	1759638474306148170	CMakeFiles/smart_cropper.dir/src/main/cpp/Scanner.cpp.o	a9880c7cc62d8a90
 4203	4782	1759638474690688763	../../../../build/intermediates/cxx/Debug/3a2j6w6b/obj/x86/libsmart_cropper.so	78e951c44cc3edfd
+1	1474	1759639484989445128	CMakeFiles/smart_cropper.dir/src/main/cpp/smart_cropper.cpp.o	b071977b13e5613b
+1474	1863	1759639485312661257	../../../../build/intermediates/cxx/Debug/3a2j6w6b/obj/x86/libsmart_cropper.so	78e951c44cc3edfd

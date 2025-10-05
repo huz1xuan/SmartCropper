@@ -62,6 +62,7 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
     private PreviewView mPreviewView;
     private Button mBtnCapture;
     private Button mBtnBack;
+    private Button mBtnDocumentProcess;
     private Switch mSwitchManualAdjust;
     private Switch mSwitchAutoCapture;
     private TextView mTvAutoStatus;
@@ -129,6 +130,7 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
         mPreviewView = findViewById(R.id.preview_view);
         mBtnCapture = findViewById(R.id.btn_capture);
         mBtnBack = findViewById(R.id.btn_back);
+        mBtnDocumentProcess = findViewById(R.id.btn_document_process);
         mSwitchManualAdjust = findViewById(R.id.switch_manual_adjust);
         mSwitchAutoCapture = findViewById(R.id.switch_auto_capture);
         mTvAutoStatus = findViewById(R.id.tv_auto_status);
@@ -143,6 +145,8 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
         });
 
         mBtnCapture.setOnClickListener(v -> capturePhoto());
+
+        mBtnDocumentProcess.setOnClickListener(v -> captureAndProcessDocument());
 
         mSwitchManualAdjust.setOnCheckedChangeListener((buttonView, isChecked) -> {
             mManualAdjustEnabled = isChecked;
@@ -289,6 +293,123 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
         );
     }
     
+    /**
+     * 拍照并进行文档处理
+     */
+    private void captureAndProcessDocument() {
+        if (mImageCapture == null) {
+            Log.e(TAG, "ImageCapture is not initialized");
+            return;
+        }
+
+        // 创建带时间戳的文件名
+        String name = "doc_" + new SimpleDateFormat(FILENAME_FORMAT, Locale.getDefault())
+                .format(new Date());
+        File documentFile = new File(mOutputDir, name + ".jpg");
+
+        ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(documentFile)
+                .build();
+
+        // 拍照
+        mImageCapture.takePicture(
+                outputFileOptions,
+                ContextCompat.getMainExecutor(this),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
+                        Log.d(TAG, "Document photo saved successfully");
+                        Toast.makeText(CameraActivity.this, "开始文档处理...", Toast.LENGTH_SHORT).show();
+                        performDocumentProcessing(documentFile);
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        Log.e(TAG, "Document photo capture failed: " + exception.getMessage(), exception);
+                        Toast.makeText(CameraActivity.this, "拍照失败", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+    }
+
+    /**
+     * 执行完整的文档处理流程
+     */
+    private void performDocumentProcessing(File originalFile) {
+        mBackgroundHandler.post(() -> {
+            try {
+                // 加载原始图片
+                android.graphics.Bitmap originalBitmap = android.graphics.BitmapFactory.decodeFile(originalFile.getPath());
+                if (originalBitmap == null) {
+                    runOnUiThread(() -> Toast.makeText(CameraActivity.this, "加载图片失败", Toast.LENGTH_SHORT).show());
+                    return;
+                }
+
+                runOnUiThread(() -> Toast.makeText(CameraActivity.this, "步骤1/5: 边缘检测中...", Toast.LENGTH_SHORT).show());
+
+                // 步骤1：边缘检测和裁剪
+                android.graphics.Point[] detectedPoints = SmartCropper.scan(originalBitmap);
+                android.graphics.Bitmap croppedBitmap = originalBitmap;
+                
+                if (detectedPoints != null && detectedPoints.length == 4) {
+                    android.graphics.Bitmap tempCropped = SmartCropper.crop(originalBitmap, detectedPoints);
+                    if (tempCropped != null) {
+                        croppedBitmap = tempCropped;
+                        runOnUiThread(() -> Toast.makeText(CameraActivity.this, "步骤2/5: 转换灰度图...", Toast.LENGTH_SHORT).show());
+                    }
+                } else {
+                    runOnUiThread(() -> Toast.makeText(CameraActivity.this, "未检测到边缘，继续处理原图", Toast.LENGTH_SHORT).show());
+                }
+
+                // 步骤2：转换为灰度图
+                android.graphics.Bitmap grayBitmap = SmartCropper.convertToGrayscale(croppedBitmap);
+                if (croppedBitmap != originalBitmap && croppedBitmap != grayBitmap) {
+                    croppedBitmap.recycle();
+                }
+
+                runOnUiThread(() -> Toast.makeText(CameraActivity.this, "步骤3/5: 图像降噪...", Toast.LENGTH_SHORT).show());
+
+                // 步骤3：降噪处理
+                android.graphics.Bitmap denoisedBitmap = SmartCropper.denoiseImage(grayBitmap);
+                if (grayBitmap != denoisedBitmap) {
+                    grayBitmap.recycle();
+                }
+
+                runOnUiThread(() -> Toast.makeText(CameraActivity.this, "步骤4/5: 增强对比度...", Toast.LENGTH_SHORT).show());
+
+                // 步骤4：增强对比度
+                android.graphics.Bitmap contrastBitmap = SmartCropper.enhanceContrast(denoisedBitmap);
+                if (denoisedBitmap != contrastBitmap) {
+                    denoisedBitmap.recycle();
+                }
+
+                runOnUiThread(() -> Toast.makeText(CameraActivity.this, "步骤5/5: 二值化处理...", Toast.LENGTH_SHORT).show());
+
+                // 步骤5：二值化处理
+                android.graphics.Bitmap binaryBitmap = SmartCropper.binarizeImage(contrastBitmap);
+                if (contrastBitmap != binaryBitmap) {
+                    contrastBitmap.recycle();
+                }
+
+                // 保存最终结果
+                saveBitmapToFile(binaryBitmap, originalFile);
+                binaryBitmap.recycle();
+
+                runOnUiThread(() -> {
+                    Toast.makeText(CameraActivity.this, "文档处理完成！", Toast.LENGTH_LONG).show();
+                    saveToGallery(originalFile);
+                    setResult(RESULT_OK);
+                });
+
+            } catch (Exception e) {
+                Log.e(TAG, "Document processing failed", e);
+                runOnUiThread(() -> {
+                    Toast.makeText(CameraActivity.this, "文档处理失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    saveToGallery(originalFile);
+                });
+            }
+        });
+    }
+
     /**
      * 处理拍照后的图片
      */

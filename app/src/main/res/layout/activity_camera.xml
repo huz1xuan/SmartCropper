@@ -140,10 +140,16 @@
         android:gravity="center"
         android:background="#80000000">
 
-        <!-- 占位 -->
-        <View
-            android:layout_width="80dp"
-            android:layout_height="80dp" />
+        <!-- 文档处理按钮 -->
+        <Button
+            android:id="@+id/btn_document_process"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/capture_button_bg"
+            android:text="📄"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:layout_marginEnd="16dp" />
 
         <!-- 拍照按钮 -->
         <Button
@@ -157,8 +163,9 @@
 
         <!-- 占位 -->
         <View
-            android:layout_width="80dp"
-            android:layout_height="80dp" />
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="16dp" />
 
     </LinearLayout>
 

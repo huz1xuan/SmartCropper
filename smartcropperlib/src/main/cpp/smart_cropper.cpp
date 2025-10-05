@@ -106,6 +106,112 @@ static jdouble native_calculateSSIM(JNIEnv *env, jclass type, jobject bitmap1, j
     return static_cast<jdouble>(ssimValue);
 }
 
+// 创建新的Bitmap对象的辅助函数
+static jobject createBitmapFromMat(JNIEnv *env, Mat &srcMat) {
+    // 获取Bitmap类和创建方法
+    jclass bitmapClass = env->FindClass("android/graphics/Bitmap");
+    jclass bitmapConfigClass = env->FindClass("android/graphics/Bitmap$Config");
+    
+    jfieldID argb8888FieldID = env->GetStaticFieldID(bitmapConfigClass, "ARGB_8888", "Landroid/graphics/Bitmap$Config;");
+    jobject argb8888Obj = env->GetStaticObjectField(bitmapConfigClass, argb8888FieldID);
+    
+    jmethodID createBitmapMethodID = env->GetStaticMethodID(bitmapClass, "createBitmap", "(IILandroid/graphics/Bitmap$Config;)Landroid/graphics/Bitmap;");
+    
+    // 创建新的Bitmap
+    jobject newBitmap = env->CallStaticObjectMethod(bitmapClass, createBitmapMethodID, srcMat.cols, srcMat.rows, argb8888Obj);
+    
+    // 将Mat数据复制到Bitmap
+    mat_to_bitmap(env, srcMat, newBitmap);
+    
+    return newBitmap;
+}
+
+static jobject native_convertToGrayscale(JNIEnv *env, jclass type, jobject srcBitmap) {
+    Mat srcMat;
+    bitmap_to_mat(env, srcBitmap, srcMat);
+    
+    Mat grayMat;
+    if (srcMat.channels() == 4) {
+        cvtColor(srcMat, grayMat, COLOR_RGBA2GRAY);
+    } else if (srcMat.channels() == 3) {
+        cvtColor(srcMat, grayMat, COLOR_RGB2GRAY);
+    } else {
+        grayMat = srcMat.clone();
+    }
+    
+    // 转换回RGBA格式以便显示
+    Mat rgbaMat;
+    cvtColor(grayMat, rgbaMat, COLOR_GRAY2RGBA);
+    
+    return createBitmapFromMat(env, rgbaMat);
+}
+
+static jobject native_denoiseImage(JNIEnv *env, jclass type, jobject srcBitmap) {
+    Mat srcMat;
+    bitmap_to_mat(env, srcBitmap, srcMat);
+    
+    Mat denoisedMat;
+    // 使用高斯滤波进行降噪
+    GaussianBlur(srcMat, denoisedMat, Size(5, 5), 0);
+    
+    return createBitmapFromMat(env, denoisedMat);
+}
+
+static jobject native_enhanceContrast(JNIEnv *env, jclass type, jobject srcBitmap) {
+    Mat srcMat;
+    bitmap_to_mat(env, srcBitmap, srcMat);
+    
+    Mat enhancedMat;
+    // 使用CLAHE（对比度限制自适应直方图均衡化）增强对比度
+    if (srcMat.channels() == 1) {
+        Ptr<CLAHE> clahe = createCLAHE(3.0, Size(8, 8));
+        clahe->apply(srcMat, enhancedMat);
+        // 转换回RGBA格式
+        Mat rgbaMat;
+        cvtColor(enhancedMat, rgbaMat, COLOR_GRAY2RGBA);
+        enhancedMat = rgbaMat;
+    } else {
+        // 对于彩色图像，转换到Lab色彩空间处理
+        Mat labMat;
+        cvtColor(srcMat, labMat, COLOR_RGBA2RGB);
+        cvtColor(labMat, labMat, COLOR_RGB2Lab);
+        
+        std::vector<Mat> labChannels;
+        split(labMat, labChannels);
+        
+        Ptr<CLAHE> clahe = createCLAHE(3.0, Size(8, 8));
+        clahe->apply(labChannels[0], labChannels[0]);
+        
+        merge(labChannels, labMat);
+        cvtColor(labMat, enhancedMat, COLOR_Lab2RGB);
+        cvtColor(enhancedMat, enhancedMat, COLOR_RGB2RGBA);
+    }
+    
+    return createBitmapFromMat(env, enhancedMat);
+}
+
+static jobject native_binarizeImage(JNIEnv *env, jclass type, jobject srcBitmap) {
+    Mat srcMat;
+    bitmap_to_mat(env, srcBitmap, srcMat);
+    
+    Mat grayMat;
+    if (srcMat.channels() > 1) {
+        cvtColor(srcMat, grayMat, COLOR_RGBA2GRAY);
+    } else {
+        grayMat = srcMat.clone();
+    }
+    
+    Mat binaryMat;
+    // 使用自适应阈值二值化
+    adaptiveThreshold(grayMat, binaryMat, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 2);
+    
+    // 转换回RGBA格式
+    Mat rgbaMat;
+    cvtColor(binaryMat, rgbaMat, COLOR_GRAY2RGBA);
+    
+    return createBitmapFromMat(env, rgbaMat);
+}
+
 static JNINativeMethod gMethods[] = {
 
         {
@@ -124,6 +230,30 @@ static JNINativeMethod gMethods[] = {
                 "nativeCalculateSSIM",
                 "(Landroid/graphics/Bitmap;Landroid/graphics/Bitmap;)D",
                 (void*)native_calculateSSIM
+        },
+
+        {
+                "nativeConvertToGrayscale",
+                "(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;",
+                (void*)native_convertToGrayscale
+        },
+
+        {
+                "nativeDenoiseImage",
+                "(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;",
+                (void*)native_denoiseImage
+        },
+
+        {
+                "nativeEnhanceContrast",
+                "(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;",
+                (void*)native_enhanceContrast
+        },
+
+        {
+                "nativeBinarizeImage",
+                "(Landroid/graphics/Bitmap;)Landroid/graphics/Bitmap;",
+                (void*)native_binarizeImage
         }
 
 };
